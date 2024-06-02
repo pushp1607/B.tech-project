@@ -12,7 +12,7 @@ public class URLCategorizationApiClient {
     private static final String API_KEY = "at_wAs3nIxsj2dv1XGWe8jQUfFvwf3UM";
     //at_eLkwN8pf0IJssGuOm9S1yYrh54UiV
     //at_1P0oi6WTDpZcAESDbB6fvOVq0Qbnb (working)
-//https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=at_wAs3nIxsj2dv1XGWe8jQUfFvwf3UM&domainName=google.com
+    //https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=at_wAs3nIxsj2dv1XGWe8jQUfFvwf3UM&domainName=google.com
     public Map<String, String> getCategorizationConfidence(String url) {
         String requestUrl = API_ENDPOINT + "?apiKey=" + API_KEY + "&domainName=" + url;
 
