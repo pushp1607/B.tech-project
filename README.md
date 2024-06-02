@@ -1,4 +1,3 @@
-# B.tech-project
 # Automated Network Analysis and Fault Detection System for Campus IT Infrastructure
 
 This project aims to automate the monitoring and analysis of campus network performance, ensuring seamless operation and reducing downtime. The system integrates various data sources, machine learning models, and Elasticsearch for efficient data retrieval and processing.
@@ -61,7 +60,7 @@ The system is composed of multiple layers and components:
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/your-username/automated-network-analysis.git
+    git clone https://github.com/pushp1607/B.tech-project.git
     cd automated-network-analysis
     ```
 
@@ -117,7 +116,7 @@ The system is composed of multiple layers and components:
    ![Dashboard](path/to/screenshots/dashboard.png)
    
 2. **Network Analysis Graphs**:
-   ![Network Analysis Graphs](path/to/screenshots/analysis_graphs.png)
+   ![Network Analysis Graphs](src/main/resources/graphServiceFlowChart.png)
    
 3. **Ping Processor**:
    ![Ping Processor](path/to/screenshots/ping_processor.png)
