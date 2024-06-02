@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destination IP Actions Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([0, 0], 2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    fetch('/api/destination-ip-actions')
+        .then(response => response.json())
+        .then(destinationIpActions => {
+            destinationIpActions.forEach(action => {
+                var lat = parseFloat(action.latitude);
+                var lng = parseFloat(action.longitude);
+                var marker = L.marker([lat, lng]).addTo(map);
+                marker.bindPopup(`<b>Destination IP:</b> ${action.destinationIp}<br><b>Action:</b> ${action.action}`);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .dashboard-section {
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Environmental Monitoring Dashboard</h2>
+
+    <!-- Fan Status Chart -->
+    <div class="dashboard-section">
+        <h3>Fan Status</h3>
+        <canvas id="fanStatusChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Power Status Chart -->
+    <div class="dashboard-section">
+        <h3>Power Status</h3>
+        <canvas id="powerStatusChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Temperature Monitoring Chart -->
+    <div class="dashboard-section">
+        <h3>Temperature Monitoring</h3>
+        <canvas id="temperatureChart" class="chart-container"></canvas>
+    </div>
+</div>
+
+<script>
+    // JavaScript code for chart initialization and data population
+    // Sample data from the provided SNMP data
+    const fanStatusData = [
+        { status: 'Ok', value: 10 },
+        { status: 'Fault', value: 5 }
+    ];
+
+    const powerStatusData = [
+        { status: 'In Operation', value: 15 },
+        { status: 'Failed', value: 3 },
+        { status: 'Empty', value: 2 }
+    ];
+
+    const temperatureData = [
+        { time: '1', temperature: 25 },
+        { time: '2', temperature: 26 },
+        { time: '3', temperature: 27 },
+        { time: '4', temperature: 28 },
+        { time: '5', temperature: 29 }
+    ];
+
+    // Function to initialize and render pie chart
+    function renderPieChart(chartId, labels, data) {
+        const ctx = document.getElementById(chartId).getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: ['#36a2eb', '#ff6384', '#ffce56'],
+                    borderWidth: 1
+                }]
+            }
+        });
+    }
+
+    // Function to initialize and render line chart
+    function renderLineChart(chartId, labels, data) {
+        const ctx = document.getElementById(chartId).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    // Initialize and render charts
+    renderPieChart('fanStatusChart', fanStatusData.map(data => data.status), fanStatusData.map(data => data.value));
+    renderPieChart('powerStatusChart', powerStatusData.map(data => data.status), powerStatusData.map(data => data.value));
+    renderLineChart('temperatureChart', temperatureData.map(data => data.time), temperatureData.map(data => data.temperature));
+</script>
+
+</body>
+</html>

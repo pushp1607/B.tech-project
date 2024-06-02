@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Prediction</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .response-container {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Category Prediction</h1>
+    <div class="form-group">
+        <label for="linkInput">Enter Link:</label>
+        <input type="text" id="linkInput" class="form-control">
+    </div>
+    <button id="predictBtn">Predict Category</button>
+    <div id="responseContainer" class="response-container"></div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var predictBtn = document.getElementById('predictBtn');
+        predictBtn.addEventListener('click', function() {
+            var linkInput = document.getElementById('linkInput').value;
+            if (linkInput.trim() !== '') {
+                predictCategory(linkInput);
+            } else {
+                alert('Please enter a link.');
+            }
+        });
+
+        function predictCategory(link) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/predict', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    document.getElementById('responseContainer').innerHTML = "<p>Predicted Category: " + response.predicted_category + "</p>";
+                } else {
+                    document.getElementById('responseContainer').innerHTML = "<p>Error: " + xhr.statusText + "</p>";
+                }
+            };
+            xhr.onerror = function() {
+                document.getElementById('responseContainer').innerHTML = "<p>Request failed</p>";
+            };
+            var data = JSON.stringify({ 'link': link });
+            xhr.send(data);
+        }
+    });
+</script>
+</body>
+</html>

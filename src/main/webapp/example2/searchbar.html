@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Category Search</title>
+  <style>
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+    #search-input {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    #search-results {
+      width: 300px;
+      border: 1px solid #ccc;
+      border-top: none;
+      display: none;
+    }
+    #search-results ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #search-results li {
+      padding: 10px;
+      cursor: pointer;
+    }
+    #search-results li:hover {
+      background-color: #f0f0f0;
+    }
+    #selected-categories {
+      margin-top: 20px;
+    }
+    #selected-categories ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    #selected-categories li {
+      padding: 5px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="search-container">
+  <input type="text" id="search-input" placeholder="Click here to search categories...">
+</div>
+
+<div id="search-results">
+  <ul id="results-list"></ul>
+</div>
+
+<div id="selected-categories">
+  <h3>Selected Categories:</h3>
+  <ul id="selected-list"></ul>
+</div>
+
+<script>
+  const categories = [
+    "Automotive", "Trucks", "Cars", "Car Culture", "Motorcycles", "Road-Side Assistance", "Scooters", "Auto Buying and Selling", "Auto Insurance", "Auto Parts", "Auto Recalls", "Auto Repair", "Auto Safety", "Auto Shows", "Auto Infotainment Technologies", "Auto Navigation Systems", "Auto Safety Technologies", "Auto Rentals", "Books and Literature", "Art and Photography Books", "Biographies", "Children's Literature", "Comics and Graphic Novels", "Cookbooks", "Fiction", "Poetry", "Travel Books", "Young Adult Literature", "Business and Finance", "Business Accounting & Finance", "Human Resources", "Business", "Logistics", "Marketing and Advertising", "Sales", "Small and Medium-sized Business", "Startups", "Business Administration", "Business Banking & Finance", "Business I.T.", "Business Operations", "Consumer Issues", "Executive Leadership & Management", "Green Solutions", "Business Utilities", "Economy", "Advertising Industry", "Education industry", "Entertainment Industry", "Environmental Services Industry", "Financial Industry", "Food Industry", "Healthcare Industry", "Hospitality Industry", "Information Services Industry", "Legal Services Industry", "Logistics and Transportation Industry", "Agriculture", "Management Consulting Industry", "Manufacturing Industry", "Mechanical and Industrial Engineering Industry", "Media Industry", "Metals Industry", "Non-Profit Organizations", "Pharmaceutical Industry", "Power and Energy Industry", "Publishing Industry", "Real Estate Industry", "Apparel Industry", "Retail Industry", "Technology Industry", "Telecommunications Industry", "Automotive Industry", "Aviation Industry", "Biotech and Biomedical Industry", "Civil Engineering Industry", "Construction Industry", "Defense Industry", "Careers", "Apprenticeships", "Career Advice", "Career Planning", "Job Search", "Remote Working", "Vocational Training", "Education", "Adult Education", "Private School", "Secondary Education", "Special Education", "College Education", "Postgraduate Education", "Early Childhood Education", "Educational Assessment", "Homeschooling", "Homework and Study", "Language Learning", "Online Education", "Primary Education", "Events and Attractions", "Amusement and Theme Parks", "Fashion Events", "Historic Site and Landmark Tours", "Malls & Shopping Centers", "Museums & Galleries", "Musicals", "National & Civic Holidays", "Nightclubs", "Outdoor Activities", "Parks & Nature", "Party Supplies and Decorations", "Awards Shows", "Personal Celebrations & Life Events", "Political Event", "Religious Events", "Sporting Events", "Theater Venues and Events", "Zoos & Aquariums", "Bars & Restaurants", "Business Expos & Conferences", "Casinos & Gambling", "Cinemas and Events", "Comedy Events", "Concerts & Music Events", "Fan Conventions", "Family and Relationships", "Bereavement", "Dating", "Divorce", "Eldercare", "Marriage and Civil Unions", "Parenting", "Fine Art", "Costume", "Dance", "Design", "Digital Arts", "Fine Art Photography", "Modern Art", "Opera", "Theater", "Food & Drink", "Alcoholic Beverages", "Vegan Diets", "Vegetarian Diets", "World Cuisines", "Barbecues and Grilling", "Cooking", "Desserts and Baking", "Dining Out", "Food Allergies", "Food Movements", "Healthy Cooking and Eating", "Non-Alcoholic Beverages", "Healthy Living", "Children's Health", "Participant Sports", "Running and Jogging", "Men's Health", "Nutrition", "Senior Health", "Weight Loss", "Alternative Medicine", "Physical Therapy", "Smoking Cessation", "Women's Health", "Hobbies & Interests", "Antiquing and Antiques", "Magic and Illusion", "Model Toys", "Musical Instruments", "Paranormal Phenomena", "Radio Control", "Sci-fi and Fantasy", "Workshops and Classes", "Beadwork", "Candle and Soap Making", "Drawing and Sketching", "Arts and Crafts", "Needlework", "Painting", "Photography", "Woodworking", "Beekeeping", "Birdwatching", "Cigars", "Comic Books", "Stamps and Coins", "Audio Production", "Freelance Writing", "Screenwriting", "Video Production", "Board Games and Puzzles", "Card Games", "Roleplaying Games", "Genealogy and Ancestry", "Home & Garden", "Gardening", "Remodeling & Construction", "Smart Home", "Home Appliances", "Home Entertaining", "Home Improvement", "Home Security", "Indoor Environmental Quality", "Interior Decorating", "Landscaping", "Outdoor Decorating", "Medical Health", "Allergies", "Ear, Nose and Throat Conditions", "Endocrine and Metabolic Diseases", "Eye and Vision Conditions", "Foot Health", "Heart and Cardiovascular Diseases", "Infectious Diseases", "Injuries", "Lung and Respiratory Health", "Mental Health", "Reproductive Health", "Blood Disorders", "Sexual Health", "Skin and Dermatology", "Sleep Disorders", "Substance Abuse", "Bone and Joint Conditions", "Brain and Nervous System Disorders", "Cancer", "Cold and Flu", "Dental Health", "Diabetes", "Digestive Disorders", "Medical Tests", "Pharmaceutical Drugs", "Surgery", "Vaccines", "Cosmetic Medical Services", "Movies", "Action and Adventure Movies", "Romance Movies", "Science Fiction Movies", "Indie and Arthouse Movies", "Animation Movies", "Comedy Movies", "Crime and Mystery Movies", "Documentary Movies", "Drama Movies", "Family and Children Movies", "Fantasy Movies", "Horror Movies", "World Movies", "Music and Audio", "Soft AC Music", "Urban AC Music", "Adult Album Alternative", "Alternative Music", "Children's Music", "Classic Hits", "Classical Music", "College Radio", "Comedy (Music and Audio)", "Contemporary Hits/Pop/Top 40", "Country Music", "Dance and Electronic Music", "World/International Music", "Songwriters/Folk", "Gospel Music", "Hip Hop Music", "Inspirational/New Age Music", "Jazz", "Oldies/Adult Standards", "Reggae", "Blues", "Religious (Music and Audio)", "R&B/Soul/Funk", "Rock Music", "Soundtracks, TV and Showtunes", "Sports Radio", "Talk Radio", "Urban Contemporary Music", "Variety (Music and Audio)", "News and Politics", "Crime", "Disasters", "International News", "Law", "Local News", "National News", "Politics", "Weather", "Personal Finance", "Consumer Banking", "Financial Assistance", "Financial Planning", "Frugal Living", "Insurance", "Personal Debt", "Personal Investing", "Personal Taxes", "Retirement Planning", "Home Utilities", "Pets", "Birds", "Cats", "Dogs", "Fish and Aquariums", "Large Animals", "Pet Adoptions", "Reptiles", "Veterinary Medicine", "Pet Supplies", "Pop Culture", "Humor and Satire", "Real Estate", "Apartments", "Retail Property", "Vacation Properties", "Developmental Sites", "Hotel Properties", "Houses", "Industrial Property", "Land and Farms", "Office Property", "Real Estate Buying and Selling", "Real Estate Renting and Leasing", "Religion & Spirituality", "Agnosticism", "Spirituality", "Astrology", "Atheism", "Buddhism", "Christianity", "Hinduism", "Islam", "Judaism", "Sikhism", "Science", "Biological Sciences", "Chemistry", "Environment", "Genetics", "Geography", "Geology", "Physics", "Space and Astronomy", "Shopping", "Coupons and Discounts", "Flower Shopping", "Gifts and Greetings Cards", "Grocery Shopping", "Holiday Shopping", "Household Supplies", "Lotteries and Scratchcards", "Sales and Promotions", "Children's Games and Toys", "Sports", "American Football", "Boxing", "Cheerleading", "College Sports", "Cricket", "Cycling", "Darts", "Disabled Sports", "Diving", "Equine Sports", "Extreme Sports", "Australian Rules Football", "Fantasy Sports", "Field Hockey", "Figure Skating", "Fishing Sports", "Golf", "Gymnastics", "Hunting and Shooting", "Ice Hockey", "Inline Skating", "Lacrosse", "Auto Racing", "Martial Arts", "Olympic Sports", "Poker and Professional Gambling", "Rodeo", "Rowing", "Rugby", "Sailing", "Skiing", "Snooker/Pool/Billiards", "Soccer", "Badminton", "Softball", "Squash", "Swimming", "Table Tennis", "Tennis", "Track and Field", "Volleyball", "Walking", "Water Polo", "Weightlifting", "Baseball", "Wrestling", "Basketball", "Beach Volleyball", "Bodybuilding", "Bowling", "Sports Equipment", "Style & Fashion", "Beauty", "Women's Accessories", "Women's Clothing", "Women's Shoes and Footwear", "Body Art", "Children's Clothing", "Designer Clothing", "Fashion Trends", "High Fashion", "Men's Accessories", "Men's Clothing", "Men's Shoes and Footwear", "Bath and Shower", "Deodorant and Antiperspirant", "Oral care", "Shaving", "Street Style", "Technology & Computing", "Artificial Intelligence", "Augmented Reality", "Computer Networking", "Computer Peripherals", "3-D Graphics", "Photo Editing Software", "Shareware and Freeware", "Video Software", "Web Conferencing", "Antivirus Software", "Browsers", "Computer Animation", "Databases", "Desktop Publishing", "Digital Audio", "Graphics Software", "Operating Systems", "Data Storage and Warehousing", "Desktops", "Information and Network Security", "Cloud Computing", "Web Development", "Web Hosting", "Email", "Internet", "Internet of Things", "Social Networking", "Web Design and HTML", "Laptops", "Programming Languages", "Cameras and Camcorders", "Home Entertainment Systems", "Smartphones", "Tablets and E-readers", "Wearable Technology", "Robotics", "Virtual Reality", "Television", "Animation TV", "Soap Opera TV", "Special Interest TV", "Sports TV", "Children's TV", "Comedy TV", "Drama TV", "Factual TV", "Holiday TV", "Music TV", "Reality TV", "Science Fiction TV", "Travel", "Africa Travel", "Asia Travel", "Australia and Oceania Travel", "Europe Travel", "North America Travel", "Polar Travel", "South America Travel", "Travel Preparation and Advice", "Adventure Travel", "Family Travel", "Honeymoons and Getaways", "Hotels and Motels", "Rail Travel", "Road Trips", "Spas", "Air Travel", "Beach Travel", "Bed & Breakfasts", "Budget Travel", "Business Travel", "Camping", "Cruises", "Day Trips", "Video Gaming", "Console Games", "eSports", "Mobile Games", "PC Games", "Action Video Games", "Role-Playing Video Games", "Simulation Video Games", "Sports Video Games", "Strategy Video Games", "Action-Adventure Video Games", "Adventure Video Games", "Casual Games", "Educational Video Games", "Exercise and Fitness Video Games", "MMOs", "Music and Party Video Games", "Puzzle Video Games", "Sensitive Topics", "Adult & Explicit Sexual Content", "Arms & Ammunition", "Crime & Harmful acts to individuals and Society and Human Right Violations", "Death, Injury, or Military Conflict", "Online piracy", "Hate speech & acts of aggression", "Obscenity and Profanity", "Illegal Drugs/Tobacco/eCigarettes/ Vaping/Alcohol", "Spam or Harmful Content", "Terrorism", "Sensitive Social Issues", "Parked domain", "Unsupported language", "Not enough content"
+
+  ];
+
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+  const resultsList = document.getElementById('results-list');
+  const selectedList = document.getElementById('selected-list');
+
+  // Display all categories when search input is clicked
+  searchInput.addEventListener('click', () => {
+    displayResults('');
+  });
+
+  // Function to filter categories based on user input
+  function filterCategories(query) {
+    const filteredCategories = categories.filter(category => category.toLowerCase().startsWith(query.toLowerCase()));
+    return filteredCategories;
+  }
+
+  // Function to display filtered categories
+  function displayResults(query) {
+    resultsList.innerHTML = '';
+    const filteredCategories = filterCategories(query);
+    filteredCategories.forEach(category => {
+      const listItem = document.createElement('li');
+      listItem.textContent = category;
+      listItem.addEventListener('click', () => {
+        searchInput.value = category;
+        searchResults.style.display = 'none';
+        addToSelected(category);
+      });
+      resultsList.appendChild(listItem);
+    });
+    if (filteredCategories.length > 0) {
+      searchResults.style.display = 'block';
+    } else {
+      searchResults.style.display = 'none';
+    }
+  }
+
+  // Function to add selected category to the list of selected categories
+  function addToSelected(category) {
+    const selectedListItem = document.createElement('li');
+    selectedListItem.textContent = category;
+    selectedList.appendChild(selectedListItem);
+  }
+
+  // Event listener for input changes
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim();
+    displayResults(query);
+  });
+
+</script>
+
+</body>
+</html>

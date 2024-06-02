@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Management</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 200px;
+            padding: 5px;
+        }
+        input[type="submit"] {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Blocked Websites</h1>
+<table id="blocked-websites">
+    <thead>
+    <tr>
+        <th>URL</th>
+        <th>Category</th>
+        <th>Reason</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<form id="blocked-website-form">
+    <input type="text" id="blocked-url" placeholder="URL">
+    <input type="text" id="blocked-category" placeholder="Category">
+    <input type="text" id="blocked-reason" placeholder="Reason">
+    <input type="submit" value="Add Blocked Website">
+</form>
+
+<h1>Allowed Websites</h1>
+<table id="allowed-websites">
+    <thead>
+    <tr>
+        <th>URL</th>
+        <th>Category</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<form id="allowed-website-form">
+    <input type="text" id="allowed-url" placeholder="URL">
+    <input type="text" id="allowed-category" placeholder="Category">
+    <input type="submit" value="Add Allowed Website">
+</form>
+
+<button onclick="fetchWebsites()">Fetch Websites</button>
+
+<script>
+    // Function to fetch both allowed and blocked websites
+    function fetchWebsites() {
+        fetch('/blocked-websites')
+            .then(response => response.json())
+            .then(data => {
+                const blockedTable = document.getElementById('blocked-websites').getElementsByTagName('tbody')[0];
+                blockedTable.innerHTML = '';
+                data.forEach(website => {
+                    const row = blockedTable.insertRow();
+                    row.innerHTML = `<td>${website.url}</td><td>${website.category}</td><td>${website.reason}</td><td><button onclick="deleteBlockedWebsite('${website.url}')">Delete</button></td>`;
+                });
+            })
+            .catch(error => console.error('Error fetching blocked websites:', error));
+
+        fetch('/allowed-websites')
+            .then(response => response.json())
+            .then(data => {
+                const allowedTable = document.getElementById('allowed-websites').getElementsByTagName('tbody')[0];
+                allowedTable.innerHTML = '';
+                data.forEach(website => {
+                    const row = allowedTable.insertRow();
+                    row.innerHTML = `<td>${website.url}</td><td>${website.category}</td><td><button onclick="deleteAllowedWebsite('${website.url}')">Delete</button></td>`;
+                });
+            })
+            .catch(error => console.error('Error fetching allowed websites:', error));
+    }
+
+    // Function to add a new blocked website
+    document.getElementById('blocked-website-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const url = document.getElementById('blocked-url').value;
+        const category = document.getElementById('blocked-category').value;
+        const reason = document.getElementById('blocked-reason').value;
+        fetch('/blocked-websites', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url, category, reason })
+        })
+            .then(() => {
+                fetchWebsites();
+                document.getElementById('blocked-url').value = '';
+                document.getElementById('blocked-category').value = '';
+                document.getElementById('blocked-reason').value = '';
+            })
+            .catch(error => console.error('Error adding blocked website:', error));
+    });
+
+    // Function to add a new allowed website
+    document.getElementById('allowed-website-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const url = document.getElementById('allowed-url').value;
+        const category = document.getElementById('allowed-category').value;
+        fetch('/allowed-websites', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url, category })
+        })
+            .then(() => {
+                fetchWebsites();
+                document.getElementById('allowed-url').value = '';
+                document.getElementById('allowed-category').value = '';
+            })
+            .catch(error => console.error('Error adding allowed website:', error));
+    });
+
+    // Function to delete a blocked website
+    function deleteBlockedWebsite(url) {
+        fetch(`/blocked-websites/${url}`, {
+            method: 'DELETE'
+        })
+            .then(() => {
+                fetchWebsites();
+            })
+            .catch(error => console.error('Error deleting blocked website:', error));
+    }
+
+    // Function to delete an allowed website
+    function deleteAllowedWebsite(url) {
+        fetch(`/allowed-websites/${url}`, {
+            method: 'DELETE'
+        })
+            .then(() => {
+                fetchWebsites();
+            })
+            .catch(error => console.error('Error deleting allowed website:', error));
+    }
+
+    // Initial fetch of data
+    fetchWebsites();
+</script>
+</body>
+</html>

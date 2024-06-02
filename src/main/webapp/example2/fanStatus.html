@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time SNMP Data Visualization</title>
+    <!-- Include Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="chart-container">
+        <canvas id="fanStatusChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="powerStatusChart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="temperatureChart"></canvas>
+    </div>
+</div>
+
+<script>
+    // Function to create and update charts
+    function createChart(chartId, chartType, chartData, chartLabels, chartColors, chartLabel) {
+        var ctx = document.getElementById(chartId).getContext('2d');
+        return new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: chartLabel,
+                    data: chartData,
+                    backgroundColor: chartColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    // Function to update fan status chart
+    function updateFanStatusChart() {
+        var fanData = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
+        fanStatusChart.data.datasets[0].data = fanData;
+        fanStatusChart.update();
+    }
+
+    // Function to update power status chart
+    function updatePowerStatusChart() {
+        var powerData = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
+        powerStatusChart.data.datasets[0].data = powerData;
+        powerStatusChart.update();
+    }
+
+    // Function to update temperature chart
+    function updateTemperatureChart() {
+        var temperatureData = [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
+        temperatureChart.data.datasets[0].data = temperatureData;
+        temperatureChart.update();
+    }
+
+    // Create fan status chart
+    var fanStatusChart = createChart('fanStatusChart', 'bar', [0, 0], ['Ok', 'Fault'], ['#36a2eb', '#ff6384'], 'Fan Status');
+
+    // Create power status chart
+    var powerStatusChart = createChart('powerStatusChart', 'bar', [0, 0, 0], ['In Operation', 'Failed', 'Empty'], ['#36a2eb', '#ff6384', '#ff9f40'], 'Power Status');
+
+    // Create temperature chart
+    var temperatureChart = createChart('temperatureChart', 'bar', [0, 0], ['Sys Temp', 'Env Temp'], ['#36a2eb', '#ff6384'], 'Temperature');
+
+    // Update charts every 5 seconds
+    setInterval(function() {
+        updateFanStatusChart();
+        updatePowerStatusChart();
+        updateTemperatureChart();
+    }, 5000);
+</script>
+</body>
+</html>

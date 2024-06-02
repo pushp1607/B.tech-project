@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Topology Map</title>
+    <!-- Include vis-network.min.js from the CDN -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+    <style type="text/css">
+        #network-container {
+            width: 800px;
+            height: 600px;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+<body>
+<div id="network-container"></div>
+
+<script type="text/javascript">
+    // Topology data
+    var topologyData = {
+        "devices": [
+            {
+                "id": 1,
+                "name": "Switch1",
+                "interfaces": [
+                    {
+                        "interfaceId": 1,
+                        "name": "Ethernet1",
+                        "connectedToDevice": "Router1",
+                        "connectedToInterface": "WAN1"
+                    },
+                    {
+                        "interfaceId": 2,
+                        "name": "Ethernet2",
+                        "connectedToDevice": "Router2",
+                        "connectedToInterface": "LAN1"
+                    }
+                ]
+            },
+            {
+                "id": 2,
+                "name": "Router1",
+                "interfaces": [
+                    {
+                        "interfaceId": 1,
+                        "name": "WAN1",
+                        "connectedToDevice": "Switch1",
+                        "connectedToInterface": "Ethernet1"
+                    }
+                ]
+            },
+            {
+                "id": 3,
+                "name": "Router2",
+                "interfaces": [
+                    {
+                        "interfaceId": 1,
+                        "name": "LAN1",
+                        "connectedToDevice": "Switch1",
+                        "connectedToInterface": "Ethernet2"
+                    }
+                ]
+            }
+        ]
+    };
+
+    // Create nodes and edges from topology data
+    var nodes = new vis.DataSet();
+    var edges = new vis.DataSet();
+
+    topologyData.devices.forEach(function(device) {
+        nodes.add({ id: device.id, label: device.name });
+        device.interfaces.forEach(function(interface) {
+            var connectedDevice = topologyData.devices.find(function(d) {
+                return d.name === interface.connectedToDevice;
+            });
+            if (connectedDevice) {
+                var connectedDeviceId = connectedDevice.id;
+                edges.add({ from: device.id, to: connectedDeviceId, label: interface.name });
+            }
+        });
+    });
+
+    // Create a network
+    var container = document.getElementById('network-container');
+    var data = {
+        nodes: nodes,
+        edges: edges
+    };
+    var options = {};
+    var network = new vis.Network(container, data, options);
+</script>
+</body>
+</html>

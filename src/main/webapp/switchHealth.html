@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .chart-container {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      background-color: #fff;
+    }
+
+    .chart {
+      height: 400px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .status-green { background-color: #5cb85c; }
+    .status-yellow { background-color: #f0ad4e; }
+    .status-red { background-color: #d9534f; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="section">
+    <h2 class="section-title">Port Utilization Overview</h2>
+    <div class="chart-container">
+      <canvas id="portUtilizationChart" class="chart"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Device Inventory Summary</h2>
+    <div class="chart-container">
+      <canvas id="deviceInventoryChart" class="chart"></canvas>
+    </div>
+    <table>
+      <thead>
+      <tr>
+        <th>Switch</th>
+        <th>Device Type</th>
+        <th>Count</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>Switch1</td>
+        <td>Computer</td>
+        <td>5</td>
+      </tr>
+      <tr>
+        <td>Switch1</td>
+        <td>Printer</td>
+        <td>2</td>
+      </tr>
+      <tr>
+        <td>Switch2</td>
+        <td>Computer</td>
+        <td>3</td>
+      </tr>
+      <tr>
+        <td>Switch2</td>
+        <td>Printer</td>
+        <td>1</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Network Health Status</h2>
+    <table>
+      <thead>
+      <tr>
+        <th>Switch</th>
+        <th>Port</th>
+        <th>Status</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>Switch1</td>
+        <td>1</td>
+        <td><span class="status-indicator status-green"></span>Enabled</td>
+      </tr>
+      <tr>
+        <td>Switch1</td>
+        <td>2</td>
+        <td><span class="status-indicator status-green"></span>Enabled</td>
+      </tr>
+      <tr>
+        <td>Switch2</td>
+        <td>1</td>
+        <td><span class="status-indicator status-yellow"></span>Warning</td>
+      </tr>
+      <tr>
+        <td>Switch2</td>
+        <td>2</td>
+        <td><span class="status-indicator status-red"></span>Error</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">Traffic Analysis by VLAN</h2>
+    <div class="chart-container">
+      <canvas id="trafficAnalysisChart" class="chart"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Sample data for Port Utilization Overview chart
+  var portUtilizationData = {
+    labels: ['Switch1 Port 1', 'Switch1 Port 2', 'Switch2 Port 1', 'Switch2 Port 2'],
+    datasets: [{
+      label: 'Port Utilization',
+      data: [80, 60, 90, 70], // Sample utilization percentages
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)'
+      ],
+      borderWidth: 1
+    }]
+  };
+
+  // Sample data for Device Inventory Summary chart
+  var deviceInventoryData = {
+    labels: ['Switch1', 'Switch2'],
+    datasets: [{
+      label: 'Computers',
+      data: [5, 3], // Sample computer counts
+      backgroundColor: 'rgba(255, 99, 132, 0.5)'
+    }, {
+      label: 'Printers',
+      data: [2, 1], // Sample printer counts
+      backgroundColor: 'rgba(54, 162, 235, 0.5)'
+    }]
+  };
+
+  // Sample data for Traffic Analysis by VLAN chart
+  var trafficAnalysisData = {
+    labels: ['VLAN 10', 'VLAN 20', 'VLAN 30'],
+    datasets: [{
+      label: 'Traffic Volume',
+      data: [500, 800, 300], // Sample traffic volume in Mbps
+      backgroundColor: [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)'
+      ],
+      borderColor: [
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)'
+      ],
+      borderWidth: 1
+    }]
+  };
+
+  // Port Utilization Overview chart
+  var portUtilizationCtx = document.getElementById('portUtilizationChart').getContext('2d');
+  var portUtilizationChart = new Chart(portUtilizationCtx, {
+    type: 'bar',
+    data: portUtilizationData,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Utilization (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Port'
+          }
+        }
+      }
+    }
+  });
+
+  // Device Inventory Summary chart
+  var deviceInventoryCtx = document.getElementById('deviceInventoryChart').getContext('2d');
+  var deviceInventoryChart = new Chart(deviceInventoryCtx, {
+    type: 'bar',
+    data: deviceInventoryData,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Device Count'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Switch'
+          }
+        }
+      }
+    }
+  });
+
+  // Traffic Analysis by VLAN chart
+  var trafficAnalysisCtx = document.getElementById('trafficAnalysisChart').getContext('2d');
+  var trafficAnalysisChart = new Chart(trafficAnalysisCtx, {
+    type: 'bar',
+    data: trafficAnalysisData,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Traffic Volume (Mbps)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'VLAN'
+          }
+        }
+      }
+    }
+  });
+</script>
+</body>
+</html>

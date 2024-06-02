@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JSON Entries by Action</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #jsonEntriesContainer {
+            margin-top: 20px;
+        }
+
+        .json-entry {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>JSON Entries by Action</h1>
+    <label for="targetAction">Target Action:</label>
+    <input type="text" id="targetAction" placeholder="Enter Target Action">
+
+    <button onclick="getJsonEntriesByAction()">Get JSON Entries</button>
+
+    <div id="jsonEntriesContainer"></div>
+</div>
+
+<script>
+    function getJsonEntriesByAction() {
+        const targetAction = document.getElementById('targetAction').value;
+
+        // Fetch data from the server
+        fetch(`/json-entries/get-by-action/${encodeURIComponent(targetAction)}`)
+            .then(response => response.json())
+            .then(data => {
+                displayJsonEntries(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function displayJsonEntries(jsonEntries) {
+        const jsonEntriesContainer = document.getElementById('jsonEntriesContainer');
+        jsonEntriesContainer.innerHTML = '';
+
+        if (jsonEntries.length === 0) {
+            jsonEntriesContainer.innerHTML = '<p>No entries found for the specified action.</p>';
+        } else {
+            jsonEntries.forEach(entry => {
+                const entryDiv = document.createElement('div');
+                entryDiv.classList.add('json-entry');
+
+                for (const [key, value] of Object.entries(entry)) {
+                    const entryInfo = document.createElement('p');
+                    entryInfo.textContent = `${key}: ${value}`;
+                    entryDiv.appendChild(entryInfo);
+                }
+
+                jsonEntriesContainer.appendChild(entryDiv);
+            });
+        }
+    }
+</script>
+</body>
+</html>

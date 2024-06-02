@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .dashboard-section {
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Network Dashboard</h2>
+
+    <!-- Interface Status Dashboard -->
+    <div class="dashboard-section">
+        <h3>Interface Status</h3>
+        <canvas id="interfaceStatusChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Interface Utilization Analysis -->
+    <div class="dashboard-section">
+        <h3>Interface Utilization</h3>
+        <canvas id="interfaceUtilizationChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Stack Status Overview -->
+    <div class="dashboard-section">
+        <h3>Stack Status</h3>
+        <canvas id="stackStatusChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- CPU Utilization Dashboard -->
+    <div class="dashboard-section">
+        <h3>CPU Utilization</h3>
+        <canvas id="cpuUtilizationChart" class="chart-container"></canvas>
+    </div>
+
+    <!-- Temperature and Environment Monitoring -->
+    <div class="dashboard-section">
+        <h3>Temperature Monitoring</h3>
+        <canvas id="temperatureChart" class="chart-container"></canvas>
+    </div>
+</div>
+
+<script>
+    // JavaScript code for chart initialization and data population
+    // Sample data from the provided SNMP data
+    const interfaceStatusData = [
+        { interface: 'Slot0/1', status: 'down' },
+        { interface: 'Slot0/2', status: 'down' },
+        { interface: 'Slot0/3', status: 'down' },
+        { interface: 'Slot0/4', status: 'down' },
+        { interface: 'Slot0/5', status: 'down' },
+        { interface: 'Slot0/6', status: 'down' },
+        { interface: 'Slot0/7', status: 'down' },
+        { interface: 'Slot0/8', status: 'down' },
+        { interface: 'Slot0/9', status: 'down' },
+        { interface: 'Slot0/10', status: 'down' },
+        { interface: 'Slot0/11', status: 'down' },
+        { interface: 'Slot0/12', status: 'down' },
+        { interface: 'Slot0/13', status: 'down' },
+        { interface: 'Slot0/14', status: 'down' },
+        { interface: 'Slot0/15', status: 'down' },
+        { interface: 'Slot0/16', status: 'down' },
+        { interface: 'Slot0/17', status: 'down' },
+        { interface: 'Slot0/18', status: 'down' },
+        { interface: 'Slot0/19', status: 'down' },
+        { interface: 'Slot0/20', status: 'down' },
+        { interface: 'Slot0/21', status: 'up' },
+        { interface: 'Slot0/22', status: 'down' },
+        { interface: 'Slot0/23', status: 'down' },
+        { interface: 'Slot0/24', status: 'down' },
+        { interface: 'Slot0/25', status: 'up' },
+        { interface: 'Slot0/26', status: 'down' },
+        { interface: 'Slot0/27', status: 'down' },
+        { interface: 'Slot0/28', status: 'down' }
+    ];
+
+    const interfaceUtilizationData = [
+        { interface: 'Slot0/1', utilization: 20 },
+        { interface: 'Slot0/2', utilization: 30 },
+        { interface: 'Slot0/3', utilization: 25 },
+        { interface: 'Slot0/4', utilization: 40 },
+        { interface: 'Slot0/5', utilization: 35 },
+        // Add more data as needed
+    ];
+
+    const stackStatusData = [
+        { interface: 'Slot0/1', stackStatus: 'notInService' },
+        { interface: 'Slot0/2', stackStatus: 'notInService' },
+        { interface: 'Slot0/3', stackStatus: 'notInService' },
+        { interface: 'Slot0/4', stackStatus: 'notInService' },
+        { interface: 'Slot0/5', stackStatus: 'notInService' },
+        { interface: 'Slot0/6', stackStatus: 'notInService' },
+        { interface: 'Slot0/7', stackStatus: 'notInService' },
+        { interface: 'Slot0/8', stackStatus: 'notInService' },
+        { interface: 'Slot0/9', stackStatus: 'notInService' },
+        { interface: 'Slot0/10', stackStatus: 'notInService' },
+        { interface: 'Slot0/11', stackStatus: 'notInService' },
+        { interface: 'Slot0/12', stackStatus: 'notInService' },
+        { interface: 'Slot0/13', stackStatus: 'notInService' },
+        { interface: 'Slot0/14', stackStatus: 'notInService' },
+        { interface: 'Slot0/15', stackStatus: 'notInService' },
+        { interface: 'Slot0/16', stackStatus: 'notInService' },
+        { interface: 'Slot0/17', stackStatus: 'notInService' },
+        { interface: 'Slot0/18', stackStatus: 'notInService' },
+        { interface: 'Slot0/19', stackStatus: 'notInService' },
+        { interface: 'Slot0/20', stackStatus: 'notInService' },
+        { interface: 'Slot0/21', stackStatus: 'active' },
+        { interface: 'Slot0/22', stackStatus: 'active' },
+        { interface: 'Slot0/23', stackStatus: 'active' },
+        { interface: 'Slot0/24', stackStatus: 'active' },
+        { interface: 'Slot0/25', stackStatus: 'active' },
+        // Add more data as needed
+    ];
+
+    const cpuUtilizationData = [
+        { time: '1', utilization: 80 },
+        { time: '2', utilization: 75 },
+        { time: '3', utilization: 70 },
+        { time: '4', utilization: 65 },
+        { time: '5', utilization: 60 },
+        // Add more data as needed
+    ];
+
+    const temperatureData = [
+        { time: '1', temperature: 25 },
+        { time: '2', temperature: 26 },
+        { time: '3', temperature: 27 },
+        { time: '4', temperature: 28 },
+        { time: '5', temperature: 29 },
+        // Add more data as needed
+    ];
+
+    // Function to initialize and render line chart
+    function renderLineChart(chartId, labels, data, label) {
+        const ctx = document.getElementById(chartId).getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+
+    // Initialize and render charts
+    renderLineChart('interfaceStatusChart', interfaceStatusData.map(data => data.interface), interfaceStatusData.map(data => data.status === 'up' ? 1 : 0), 'Status');
+    renderLineChart('interfaceUtilizationChart', interfaceUtilizationData.map(data => data.interface), interfaceUtilizationData.map(data => data.utilization), 'Utilization (%)');
+    renderLineChart('stackStatusChart', stackStatusData.map(data => data.interface), stackStatusData.map(data => data.stackStatus === 'active' ? 1 : 0), 'Status');
+    renderLineChart('cpuUtilizationChart', cpuUtilizationData.map(data => data.time), cpuUtilizationData.map(data => data.utilization), 'CPU Utilization (%)');
+    renderLineChart('temperatureChart', temperatureData.map(data => data.time), temperatureData.map(data => data.temperature), 'Temperature (°C)');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alerting System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #resultWindow {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        #alertWindow.alert {
+            background-color: #ffcccc;
+            color: #cc0000;
+        }
+
+        #alertWindow.success {
+            background-color: #d4f4c4;
+            color: #008000;
+        }
+
+        #warningWindow {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .high-warning {
+            background-color: #FF0000;
+            color: #FFFFFF;
+        }
+
+        .medium-warning {
+            background-color: #FF9900;
+            color: #FFFFFF;
+        }
+
+        .low-warning {
+            background-color: #FFFF00;
+            color: #000000;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<a href="../homePage.html">Go back to Home Page</a> <br>
+
+<h1>Alerting System Configuration</h1>
+<form id="configForm" >
+    <label for="analysisTime">Analysis Time Window:</label>
+    <input type="number" id="analysisTime" name="analysisTime" required>
+    <select id="analysisTimeUnit" name="analysisTimeUnit">
+        <option value="days">Days</option>
+        <option value="hours">Hours</option>
+        <option value="minutes">Minutes</option>
+    </select>
+
+    <label for="idealTime">Ideal Time Window:</label>
+    <input type="number" id="idealTime" name="idealTime" required>
+    <select id="idealTimeUnit" name="idealTimeUnit">
+        <option value="days">Days</option>
+        <option value="hours">Hours</option>
+        <option value="minutes">Minutes</option>
+    </select>
+
+    <label for="indexName">Index Name or Index Pattern:</label>
+    <input type="text" id="indexName" name="indexName" required>
+
+    <label for="toleranceFactor">Tolerance Factor:</label>
+    <input type="number" id="toleranceFactor" name="toleranceFactor" required>
+
+    <label for="recipientEmail">Recipient Email:</label>
+    <input type="email" id="recipientEmail" name="recipientEmail" required>
+
+    <label for="senderEmail">Sender Email:</label>
+    <input type="email" id="senderEmail" name="senderEmail">
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password">
+
+    <label for="emailInterval">Email Interval (in minutes):</label>
+    <input type="number" id="emailInterval" name="emailInterval" required>
+
+    <button type="submit">Submit</button>
+</form>
+
+<div id="alertWindow"></div> <!-- Warning window -->
+<div id="warningWindow"></div> <!-- Warning window -->
+
+<div id="resultWindow">
+    <h2>Alert Result</h2>
+    <table>
+        <tr>
+            <th>Field</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Alert</td>
+            <td id="alertValue"></td>
+        </tr>
+        <tr>
+            <td>Crossed Weekly Average</td>
+            <td id="crossedWeeklyAverageValue"></td>
+        </tr>
+        <tr>
+            <td>Crossed Daily Average</td>
+            <td id="crossedDailyAverageValue"></td>
+        </tr>
+        <tr>
+            <td>Alert Level</td>
+            <td id="alertLevelValue"></td>
+        </tr>
+        <tr>
+            <td>Peak Detected In Analysis Window</td>
+            <td id="peakDetectedInAnalysisWindow"></td>
+        </tr>
+
+        <tr>
+            <td>Per Day Failure Count in Analysis Window</td>
+            <td id="perDayFailureCountInAnalysisWindowValue"></td>
+        </tr>
+
+        <tr>
+            <td>Per Day Failure Count in Ideal Window</td>
+            <td id="perDayFailureCountInIdealWindowValue"></td>
+        </tr>
+        <tr>
+            <td>Field-wise Report</td>
+            <td id="fieldWiseReportValue"></td>
+        </tr>
+
+    </table>
+</div>
+
+<script>
+    function checkAlertAndSendEmail() {
+        // Retrieve configuration values
+        const analysisTime = document.getElementById('analysisTime').value;
+        const analysisTimeUnit = document.getElementById('analysisTimeUnit').value;
+        const idealTime = document.getElementById('idealTime').value;
+        const idealTimeUnit = document.getElementById('idealTimeUnit').value;
+        const indexName = document.getElementById('indexName').value;
+        const toleranceFactor = document.getElementById('toleranceFactor').value;
+        const fieldsToAnalyze = ""
+        const analysisFormData = {
+            analysisTimeWindow: analysisTime,
+            analysisTimeWindowUnit: analysisTimeUnit,
+            idealFailureTimeWindow: idealTime,
+            idealFailureTimeWindowUnit: idealTimeUnit,
+            indexName: indexName,
+            toleranceFactor: toleranceFactor
+        };
+
+
+        const url = `/check-alert`;
+        fetch(url,{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(analysisFormData)
+        }).then(response => response.json())
+            .then(data => {
+                const warningWindow = document.getElementById('warningWindow');
+                warningWindow.innerHTML = ''; // Clear previous warnings
+                console.log(data)
+                // Display warnings
+                if (data.alertLevel === 'High') {
+                    warningWindow.textContent = 'High Warning Level: ' //+ data.completeReport;
+                    warningWindow.classList.remove('low-warning');
+                    warningWindow.classList.remove('medium-warning');
+                    warningWindow.classList.add('high-warning');
+                } else if (data.alertLevel === 'Medium') {
+                    warningWindow.textContent = 'Medium Warning Level: ' //+ data.completeReport;
+                    warningWindow.classList.remove('low-warning');
+                    warningWindow.classList.remove('high-warning');
+                    warningWindow.classList.add('medium-warning');
+                } else if (data.alertLevel === 'Low') {
+                    warningWindow.textContent = 'Low Warning Level: ' //+ data.completeReport;
+                    warningWindow.classList.remove('high-warning');
+                    warningWindow.classList.remove('medium-warning');
+                    warningWindow.classList.add('low-warning');
+                }
+
+                const alertWindow = document.getElementById('alertWindow');
+                alertWindow.innerHTML = ''; // Clear previous results
+
+                if (data.alert) {
+                    alertWindow.textContent = 'Alert! The failure rate exceeds the tolerance level.';
+                    alertWindow.classList.remove('success'); // Remove the "success" class
+                    alertWindow.classList.add('alert');
+
+                    submitEmailForm(); // Call the email submission function
+                } else {
+                    alertWindow.textContent = 'No alert. The failure rate is within the tolerance level.';
+                    alertWindow.classList.remove('alert'); // Remove the "alert" class
+                    alertWindow.classList.add('success');
+                }
+
+                // Update the field values in the UI
+                document.getElementById('alertValue').textContent = data.alert;
+                document.getElementById('crossedWeeklyAverageValue').textContent = data.crossedWeeklyAverage;
+                document.getElementById('crossedDailyAverageValue').textContent = data.crossedDailyAverage;
+                document.getElementById('peakDetectedInAnalysisWindow').textContent = data.hasPeakFailure;
+
+                document.getElementById('alertLevelValue').textContent = data.alertLevel;
+                document.getElementById('perDayFailureCountInAnalysisWindowValue').textContent = data.perDayFailureCountInAnalysisWindow;
+                document.getElementById('perDayFailureCountInIdealWindowValue').textContent = data.perDayFailureCountInIdealWindow;
+                var fieldwiseReport = data.fieldWiseReport;
+                var formattedReport = fieldwiseReport.replace(/Frequent failures/g, "Frequent failures"); // Add line breaks before "Frequent failures"
+
+                document.getElementById('fieldWiseReportValue').textContent = formattedReport;
+
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
+
+        // Make a POST request to the server to save the Elasticsearch setup information
+        fetch('/save-analysisData-info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(analysisFormData)
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    console.log('Saved successfully');
+                } else {
+                    console.log('Error saving data');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function submitEmailForm() {
+        const senderEmail = document.getElementById('senderEmail').value;
+        const password = document.getElementById('password').value;
+        const recipientEmail = document.getElementById('recipientEmail').value;
+        const emailBody = document.getElementById('resultWindow').textContent;
+        const emailData = {
+            senderEmail,
+            password,
+            recipientEmail,
+            emailBody
+        };
+
+        // Send emailData to the server
+        fetch('/send-alert-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(emailData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                alert('Email sent successfully.');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    document.getElementById('configForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const interval = Number(document.getElementById('emailInterval').value);
+        checkAlertAndSendEmail();
+        setInterval(checkAlertAndSendEmail, interval*1000*60); //
+    });
+</script>
+</body>
+</html>

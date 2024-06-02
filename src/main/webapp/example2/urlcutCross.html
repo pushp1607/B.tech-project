@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Categorization</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"], input[type="number"], textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: calc(100% - 22px);
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-sizing: border-box;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .category-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .category-item {
+            margin-bottom: 10px;
+        }
+        .category-name {
+            font-weight: bold;
+        }
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+            border-radius: 5px;
+        }
+        .pass-block-container {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
+        .pass-block-text {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .pass {
+            color: green;
+        }
+        .block {
+            color: red;
+        }
+        .block-reasons {
+            margin-top: 10px;
+            text-align: left;
+        }
+        .block-reasons h3 {
+            margin-bottom: 5px;
+            font-size: 16px;
+            color: #555;
+        }
+        .block-reasons ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        .block-reasons li {
+            list-style: disc;
+            color: #333;
+        }
+        .category-select-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .category-select {
+            width: calc(100% - 30px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .category-select::-ms-expand {
+            display: none;
+        }
+        .category-select-container::after {
+            content: '+';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 100%;
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            line-height: 40px;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+            cursor: pointer;
+        }
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        #search-input {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        #search-results {
+            width: 300px;
+            max-height: 200px; /* Limiting the height */
+            overflow-y: auto; /* Adding scrolling */
+            border: 1px solid #ccc;
+            border-top: none;
+            display: none;
+            position: absolute; /* Positioning the list absolutely */
+            background-color: #fff;
+            z-index: 1; /* Ensuring the list is above other elements */
+        }
+        #search-results ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #search-results li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        #search-results li:hover {
+            background-color: #f0f0f0;
+        }
+        #selected-categories {
+            margin-top: 20px;
+        }
+        #selected-categories ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #selected-categories li {
+            padding: 5px 0;
+            position: relative;
+        }
+        .remove-category {
+            position: absolute;
+            top: 50%;
+            right: 5px;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>URL Categorization</h1>
+    <div class="category-select-container">
+        <select class="category-select" id="categorySelect">
+            <option value="" selected disabled>Select category...</option>
+            <option value="Technology & Computing">Automotive</option>
+            <option value="Trucks">Trucks</option>
+            <option value="Cars">Cars</option>
+            <option value="Car Culture">Car Culture</option>
+            <option value="Motorcycles">Motorcycles</option>
+            <option value="Road-Side Assistance">Road-Side Assistance</option>
+            <option value="Scooters">Scooters</option>
+            <option value="Auto Buying and Selling">Auto Buying and Selling</option>
+            <option value="Auto Insurance">Auto Insurance</option>
+            <option value="Auto Parts">Auto Parts</option>
+            <option value="Auto Recalls">Auto Recalls</option>
+            <option value="Auto Repair">Auto Repair</option>
+        </select>
+        <div class="category-select-container__add-button">+</div>
+    </div>
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="Search categories...">
+    </div>
+    <div id="search-results">
+        <ul id="results-list"></ul>
+    </div>
+    <div id="selected-categories">
+        <h3>Selected Categories:</h3>
+        <ul id="selected-list"></ul>
+    </div>
+    <input type="text" id="url" placeholder="Enter URL">
+    <input type="number" id="confidence" placeholder="Enter Confidence Level (%)">
+    <button onclick="categorizeURL()">Categorize</button>
+    <div id="result"></div>
+</div>
+
+<script>
+    const categories = [
+        "Internet", "Business and Finance", "Technology & Computing", "Car Culture", "Motorcycles", "Road-Side Assistance", "Scooters", "Auto Buying and Selling"
+    ];
+
+    const searchInput = document.getElementById('search-input');
+    const searchResults = document.getElementById('search-results');
+    const resultsList = document.getElementById('results-list');
+    const selectedList = document.getElementById('selected-list');
+
+    document.addEventListener('click', (event) => {
+        if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Display all categories when search input is clicked
+    searchInput.addEventListener('click', () => {
+        displayResults('');
+    });
+
+    // Function to filter categories based on user input
+    function filterCategories(query) {
+        const filteredCategories = categories.filter(category => category.toLowerCase().includes(query.toLowerCase()));
+        return filteredCategories;
+    }
+
+    // Function to display filtered categories
+    function displayResults(query) {
+        resultsList.innerHTML = '';
+        const filteredCategories = filterCategories(query);
+        filteredCategories.forEach(category => {
+            const listItem = document.createElement('li');
+            listItem.textContent = category;
+            listItem.addEventListener('click', () => {
+                searchInput.value = category;
+                searchResults.style.display = 'none';
+                addToSelected(category);
+            });
+            resultsList.appendChild(listItem);
+        });
+        if (filteredCategories.length > 0) {
+            searchResults.style.display = 'block';
+        } else {
+            searchResults.style.display = 'none';
+        }
+    }
+
+    // Function to add selected category to the list of selected categories
+    function addToSelected(category) {
+        const selectedListItem = document.createElement('li');
+        selectedListItem.textContent = category;
+        selectedList.appendChild(selectedListItem);
+
+        // Add cross (x) button to remove the category
+        const removeButton = document.createElement('span');
+        removeButton.innerHTML = '&#10006;';
+        removeButton.classList.add('remove-category');
+        removeButton.addEventListener('click', () => {
+            selectedListItem.remove();
+        });
+        selectedListItem.appendChild(removeButton);
+    }
+
+    // Event listener for input changes
+    searchInput.addEventListener('input', () => {
+        const query = searchInput.value.trim();
+        displayResults(query);
+    });
+
+    // '+' button
+    document.querySelector('.category-select-container__add-button').addEventListener('click', addCategoryToList);
+
+    // Function to add category to the list
+    function addCategoryToList() {
+        const selectedCategory = document.getElementById('categorySelect').value;
+        if (selectedCategory && !selectedList.innerText.includes(selectedCategory)) {
+            addToSelected(selectedCategory);
+        }
+    }
+
+    function categorizeURL() {
+        var url = document.getElementById("url").value;
+        var confidence = document.getElementById("confidence").value;
+        var blockedCategories = Array.from(document.getElementById("selected-list").querySelectorAll('li')).map(item => item.textContent.trim().toLowerCase()); // Convert to lowercase for case-insensitive comparison
+        var selectedCategories = Array.from(document.getElementById("selected-list").querySelectorAll('li')).map(item => item.textContent.trim().toLowerCase()); // Convert to lowercase for case-insensitive comparison
+
+        // Validate confidence level
+        if (confidence === "" || isNaN(confidence) || confidence < 0 || confidence > 100) {
+            alert("Please enter a valid confidence level between 0 and 100.");
+            return;
+        }
+
+        fetch('/categorize', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ url: url }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                var resultHTML = '<h2>Category Confidence:</h2><ul>';
+                var shouldBlock = false;
+                var blockReasons = [];
+
+                for (var category in data) {
+                    var categoryConfidence = (data[category] * 100).toFixed(2); // Convert confidence to percentage
+                    if (categoryConfidence >= confidence) { // Check if confidence is above threshold
+                        resultHTML += '<li>' + category + ': ' + categoryConfidence + '%</li>';
+                        if (blockedCategories.includes(category.toLowerCase())) {
+                            shouldBlock = true;
+                            blockReasons.push(category);
+                        }
+                        if (selectedCategories.includes(category.toLowerCase())) {
+                            shouldBlock = true;
+                            blockReasons.push(category);
+                        }
+                    }
+                }
+                resultHTML += '</ul>';
+
+                if (shouldBlock) {
+                    resultHTML += '<div class="pass-block-container block">';
+                    resultHTML += '<p class="pass-block-text">This URL should be blocked.</p>';
+                    resultHTML += '<div class="block-reasons">';
+                    resultHTML += '<h3>Reasons:</h3>';
+                    resultHTML += '<ul>';
+                    blockReasons.forEach(reason => {
+                        resultHTML += '<li>' + reason + '</li>';
+                    });
+                    resultHTML += '</ul>';
+                    resultHTML += '</div>';
+                    resultHTML += '</div>';
+                } else {
+                    resultHTML += '<div class="pass-block-container pass">';
+                    resultHTML += '<p class="pass-block-text">This URL can be passed through.</p>';
+                    resultHTML += '</div>';
+                }
+
+                document.getElementById("result").innerHTML = resultHTML;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("result").innerHTML = "<p>Error retrieving categorization data.</p>";
+            });
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Analysis</title>
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #3498db;
+            font-weight: 900;
+            font-size: 2em;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input, select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .result-box h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .result {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .result-table th, .result-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .result-table th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .result-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Server Analysis</h1>
+    <div class="input-group">
+        <label for="jsonFilePath">JSON File Path:</label>
+        <input type="text" id="jsonFilePath" placeholder="Enter JSON File Path">
+    </div>
+    <div class="input-group">
+        <label for="destinationToSearch">Destination to Search:</label>
+        <input type="text" id="destinationToSearch" placeholder="Enter Destination Name">
+    </div>
+    <button onclick="getUniqueDestinations()">Get Unique Destinations</button>
+    <button onclick="getRTTAverages()">Get RTT Averages</button>
+    <button onclick="getToleranceOfRTTAverages()">Get Tolerance of RTT Averages</button>
+    <button onclick="getFailurePercentage()">Get Failure Percentage</button>
+
+    <div class="result-box" id="uniqueDestinationsBox">
+        <h2>Unique Destinations</h2>
+        <div class="result" id="uniqueDestinations"></div>
+    </div>
+
+    <div class="result-box" id="rttAveragesBox">
+        <h2>RTT Averages</h2>
+        <div class="result" id="rttAverages"></div>
+    </div>
+
+    <div class="result-box" id="toleranceRTTAveragesBox">
+        <h2>Tolerance of RTT Averages</h2>
+        <div class="result" id="toleranceRTTAverages"></div>
+    </div>
+
+    <div class="result-box" id="failurePercentageBox">
+        <h2>Failure Percentage</h2>
+        <div class="result" id="failurePercentage"></div>
+    </div>
+</div>
+<script>
+    function getUniqueDestinations() {
+        const jsonFilePath = document.getElementById("jsonFilePath").value;
+
+        fetch(`/unique-destinations?jsonFilePath=${jsonFilePath}`)
+            .then(response => response.json())
+            .then(data => {
+                displayResult('uniqueDestinations', data);
+            })
+            .catch(error => {
+                displayResult('uniqueDestinations', ["Error: " + error]);
+            });
+    }
+
+    function getRTTAverages() {
+        const jsonFilePath = document.getElementById("jsonFilePath").value;
+        const destinationToSearch = document.getElementById("destinationToSearch").value;
+
+        fetch(`/rtt-averages?jsonFilePath=${jsonFilePath}&destinationToSearch=${destinationToSearch}`)
+            .then(response => response.json())
+            .then(data => {
+                // Log the entire data object to the console for debugging
+                // Check if the data is an array
+                if (Array.isArray(data)) {
+                    // Map and filter to handle undefined or null values
+                    const rttAverages = data.map(item => item?.rttAverage).filter(value => value !== undefined && value !== null);
+                    displayResult2('rttAverages', data);
+                } else {
+                    displayResult('rttAverages', ["Error: Invalid data format"]);
+                }
+            })
+            .catch(error => {
+                displayResult('rttAverages', ["Error: " + error]);
+            });
+    }
+
+
+
+
+    function getToleranceOfRTTAverages() {
+        const jsonFilePath = document.getElementById("jsonFilePath").value;
+        const destinationToSearch = document.getElementById("destinationToSearch").value;
+
+        fetch(`/tolerance-rtt-average?jsonFilePath=${jsonFilePath}&destinationToSearch=${destinationToSearch}`)
+            .then(response => response.json())
+            .then(data => {
+                displayResult('toleranceRTTAverages', [data.toString()]);
+            })
+            .catch(error => {
+                displayResult('toleranceRTTAverages', ["Error: " + error]);
+            });
+    }
+
+    function getFailurePercentage() {
+        const jsonFilePath = document.getElementById("jsonFilePath").value;
+        const destinationToSearch = document.getElementById("destinationToSearch").value;
+
+        fetch(`/failure-percentage?jsonFilePath=${jsonFilePath}&destinationToSearch=${destinationToSearch}`)
+            .then(response => response.json())
+            .then(data => {
+                displayResult('failurePercentage', [data.toString()]);
+            })
+            .catch(error => {
+                displayResult('failurePercentage', ["Error: " + error]);
+            });
+    }
+
+    function displayResult(boxId, result) {
+        document.getElementById(boxId).innerHTML = `<div class="result">${result.join('<br>')}</div>`;
+    }
+
+    function displayResult2(boxId, data) {
+        const resultBox = document.getElementById(boxId);
+        console.log(data)
+        console.log(resultBox)
+        // Clear previous content
+        resultBox.innerHTML = '';
+
+        // Check if the data is an array
+        if (Array.isArray(data) && data.length > 0) {
+            // Create a table element
+            const table = document.createElement('table');
+            table.classList.add('result-table');
+
+            // Create the header row
+            const headerRow = table.insertRow();
+            const headers = ['Timestamp', 'Destination IP', 'RTT Average'];
+
+            headers.forEach(headerText => {
+                const header = document.createElement('th');
+                header.textContent = headerText;
+                headerRow.appendChild(header);
+            });
+
+            // Create a row for each RTT average
+            data.forEach(item => {
+                const row = table.insertRow();
+                const timestampCell = row.insertCell(0);
+                const destinationIpCell = row.insertCell(1);
+                const rttAverageCell = row.insertCell(2);
+
+                timestampCell.textContent = item.timestamp;
+                destinationIpCell.textContent = item.destinationIp;
+                rttAverageCell.textContent = item.rttAverage.toString();
+            });
+
+            // Append the table to the result box
+            resultBox.appendChild(table);
+        } else {
+            resultBox.textContent = 'Error: Invalid data format';
+        }
+    }</script>
+</body>
+</html>

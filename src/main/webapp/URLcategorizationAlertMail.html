@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Categorization & ADD/BLOCK recommendation System</title>
+  <style>
+    /* Reset CSS */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Body Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Container Styles */
+    .container {
+      width: 90%;
+      max-width: 800px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      box-sizing: border-box;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2em;
+      color: #333;
+    }
+
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #007bff;
+      color: #fff;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+
+    tr:hover {
+      background-color: #ddd;
+    }
+
+    /* Selected Categories Styles */
+    #selected-categories {
+      margin-top: 40px;
+    }
+
+    #selected-categories h3 {
+      font-size: 1.2em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    #selected-categories ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #selected-categories li {
+      padding: 10px 0;
+      font-size: 1em;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* Block Reasons Styles */
+    .block-reasons {
+      margin-top: 20px;
+      text-align: left;
+    }
+
+    .block-reasons h3 {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+      color: #555;
+    }
+
+    .block-reasons ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .block-reasons li {
+      font-size: 1em;
+      margin-bottom: 5px;
+    }
+
+    /* Pass/Block Container Styles */
+    .pass-block-container {
+      margin-top: 40px;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .pass-block-text {
+      font-weight: bold;
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .pass {
+      color: green;
+    }
+
+    .block {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>URL Categorization</h1>
+
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="Search categories...">
+  </div>
+  <div id="search-results">
+    <ul id="results-list"></ul>
+  </div>
+  <div id="selected-categories">
+    <h3>Select Categories to BLOCK:</h3>
+    <ul id="selected-list"></ul>
+  </div>
+  <input type="text" id="url" placeholder="Enter URL">
+  <input type="number" id="confidence" placeholder="Enter Minimum Confidence Level (%)">
+  <button onclick="categorizeURL()">Categorize & Recommend</button>
+  <div id="result"></div>
+
+
+
+
+</div>
+
+<script>
+  const categories = [
+    "Automotive", "Trucks", "Cars", "Car Culture", "Motorcycles", "Road-Side Assistance", "Scooters", "Auto Buying and Selling", "Auto Insurance", "Auto Parts", "Auto Recalls", "Auto Repair", "Auto Safety", "Auto Shows", "Auto Infotainment Technologies", "Auto Navigation Systems", "Auto Safety Technologies", "Auto Rentals", "Books and Literature", "Art and Photography Books", "Biographies", "Children's Literature", "Comics and Graphic Novels", "Cookbooks", "Fiction", "Poetry", "Travel Books", "Young Adult Literature", "Business and Finance", "Business Accounting & Finance", "Human Resources", "Business", "Logistics", "Marketing and Advertising", "Sales", "Small and Medium-sized Business", "Startups", "Business Administration", "Business Banking & Finance", "Business I.T.", "Business Operations", "Consumer Issues", "Executive Leadership & Management", "Green Solutions", "Business Utilities", "Economy", "Advertising Industry", "Education industry", "Entertainment Industry", "Environmental Services Industry", "Financial Industry", "Food Industry", "Healthcare Industry", "Hospitality Industry", "Information Services Industry", "Legal Services Industry", "Logistics and Transportation Industry", "Agriculture", "Management Consulting Industry", "Manufacturing Industry", "Mechanical and Industrial Engineering Industry", "Media Industry", "Metals Industry", "Non-Profit Organizations", "Pharmaceutical Industry", "Power and Energy Industry", "Publishing Industry", "Real Estate Industry", "Apparel Industry", "Retail Industry", "Technology Industry", "Telecommunications Industry", "Automotive Industry", "Aviation Industry", "Biotech and Biomedical Industry", "Civil Engineering Industry", "Construction Industry", "Defense Industry", "Careers", "Apprenticeships", "Career Advice", "Career Planning", "Job Search", "Remote Working", "Vocational Training", "Education", "Adult Education", "Private School", "Secondary Education", "Special Education", "College Education", "Postgraduate Education", "Early Childhood Education", "Educational Assessment", "Homeschooling", "Homework and Study", "Language Learning", "Online Education", "Primary Education", "Events and Attractions", "Amusement and Theme Parks", "Fashion Events", "Historic Site and Landmark Tours", "Malls & Shopping Centers", "Museums & Galleries", "Musicals", "National & Civic Holidays", "Nightclubs", "Outdoor Activities", "Parks & Nature", "Party Supplies and Decorations", "Awards Shows", "Personal Celebrations & Life Events", "Political Event", "Religious Events", "Sporting Events", "Theater Venues and Events", "Zoos & Aquariums", "Bars & Restaurants", "Business Expos & Conferences", "Casinos & Gambling", "Cinemas and Events", "Comedy Events", "Concerts & Music Events", "Fan Conventions", "Family and Relationships", "Bereavement", "Dating", "Divorce", "Eldercare", "Marriage and Civil Unions", "Parenting", "Fine Art", "Costume", "Dance", "Design", "Digital Arts", "Fine Art Photography", "Modern Art", "Opera", "Theater", "Food & Drink", "Alcoholic Beverages", "Vegan Diets", "Vegetarian Diets", "World Cuisines", "Barbecues and Grilling", "Cooking", "Desserts and Baking", "Dining Out", "Food Allergies", "Food Movements", "Healthy Cooking and Eating", "Non-Alcoholic Beverages", "Healthy Living", "Children's Health", "Participant Sports", "Running and Jogging", "Men's Health", "Nutrition", "Senior Health", "Weight Loss", "Alternative Medicine", "Physical Therapy", "Smoking Cessation", "Women's Health", "Hobbies & Interests", "Antiquing and Antiques", "Magic and Illusion", "Model Toys", "Musical Instruments", "Paranormal Phenomena", "Radio Control", "Sci-fi and Fantasy", "Workshops and Classes", "Beadwork", "Candle and Soap Making", "Drawing and Sketching", "Arts and Crafts", "Needlework", "Painting", "Photography", "Woodworking", "Beekeeping", "Birdwatching", "Cigars", "Comic Books", "Stamps and Coins", "Audio Production", "Freelance Writing", "Screenwriting", "Video Production", "Board Games and Puzzles", "Card Games", "Roleplaying Games", "Genealogy and Ancestry", "Home & Garden", "Gardening", "Remodeling & Construction", "Smart Home", "Home Appliances", "Home Entertaining", "Home Improvement", "Home Security", "Indoor Environmental Quality", "Interior Decorating", "Landscaping", "Outdoor Decorating", "Medical Health", "Allergies", "Ear, Nose and Throat Conditions", "Endocrine and Metabolic Diseases", "Eye and Vision Conditions", "Foot Health", "Heart and Cardiovascular Diseases", "Infectious Diseases", "Injuries", "Lung and Respiratory Health", "Mental Health", "Reproductive Health", "Blood Disorders", "Sexual Health", "Skin and Dermatology", "Sleep Disorders", "Substance Abuse", "Bone and Joint Conditions", "Brain and Nervous System Disorders", "Cancer", "Cold and Flu", "Dental Health", "Diabetes", "Digestive Disorders", "Medical Tests", "Pharmaceutical Drugs", "Surgery", "Vaccines", "Cosmetic Medical Services", "Movies", "Action and Adventure Movies", "Romance Movies", "Science Fiction Movies", "Indie and Arthouse Movies", "Animation Movies", "Comedy Movies", "Crime and Mystery Movies", "Documentary Movies", "Drama Movies", "Family and Children Movies", "Fantasy Movies", "Horror Movies", "World Movies", "Music and Audio", "Soft AC Music", "Urban AC Music", "Adult Album Alternative", "Alternative Music", "Children's Music", "Classic Hits", "Classical Music", "College Radio", "Comedy (Music and Audio)", "Contemporary Hits/Pop/Top 40", "Country Music", "Dance and Electronic Music", "World/International Music", "Songwriters/Folk", "Gospel Music", "Hip Hop Music", "Inspirational/New Age Music", "Jazz", "Oldies/Adult Standards", "Reggae", "Blues", "Religious (Music and Audio)", "R&B/Soul/Funk", "Rock Music", "Soundtracks, TV and Showtunes", "Sports Radio", "Talk Radio", "Urban Contemporary Music", "Variety (Music and Audio)", "News and Politics", "Crime", "Disasters", "International News", "Law", "Local News", "National News", "Politics", "Weather", "Personal Finance", "Consumer Banking", "Financial Assistance", "Financial Planning", "Frugal Living", "Insurance", "Personal Debt", "Personal Investing", "Personal Taxes", "Retirement Planning", "Home Utilities", "Pets", "Birds", "Cats", "Dogs", "Fish and Aquariums", "Large Animals", "Pet Adoptions", "Reptiles", "Veterinary Medicine", "Pet Supplies", "Pop Culture", "Humor and Satire", "Real Estate", "Apartments", "Retail Property", "Vacation Properties", "Developmental Sites", "Hotel Properties", "Houses", "Industrial Property", "Land and Farms", "Office Property", "Real Estate Buying and Selling", "Real Estate Renting and Leasing", "Religion & Spirituality", "Agnosticism", "Spirituality", "Astrology", "Atheism", "Buddhism", "Christianity", "Hinduism", "Islam", "Judaism", "Sikhism", "Science", "Biological Sciences", "Chemistry", "Environment", "Genetics", "Geography", "Geology", "Physics", "Space and Astronomy", "Shopping", "Coupons and Discounts", "Flower Shopping", "Gifts and Greetings Cards", "Grocery Shopping", "Holiday Shopping", "Household Supplies", "Lotteries and Scratchcards", "Sales and Promotions", "Children's Games and Toys", "Sports", "American Football", "Boxing", "Cheerleading", "College Sports", "Cricket", "Cycling", "Darts", "Disabled Sports", "Diving", "Equine Sports", "Extreme Sports", "Australian Rules Football", "Fantasy Sports", "Field Hockey", "Figure Skating", "Fishing Sports", "Golf", "Gymnastics", "Hunting and Shooting", "Ice Hockey", "Inline Skating", "Lacrosse", "Auto Racing", "Martial Arts", "Olympic Sports", "Poker and Professional Gambling", "Rodeo", "Rowing", "Rugby", "Sailing", "Skiing", "Snooker/Pool/Billiards", "Soccer", "Badminton", "Softball", "Squash", "Swimming", "Table Tennis", "Tennis", "Track and Field", "Volleyball", "Walking", "Water Polo", "Weightlifting", "Baseball", "Wrestling", "Basketball", "Beach Volleyball", "Bodybuilding", "Bowling", "Sports Equipment", "Style & Fashion", "Beauty", "Women's Accessories", "Women's Clothing", "Women's Shoes and Footwear", "Body Art", "Children's Clothing", "Designer Clothing", "Fashion Trends", "High Fashion", "Men's Accessories", "Men's Clothing", "Men's Shoes and Footwear", "Bath and Shower", "Deodorant and Antiperspirant", "Oral care", "Shaving", "Street Style", "Technology & Computing", "Artificial Intelligence", "Augmented Reality", "Computer Networking", "Computer Peripherals", "3-D Graphics", "Photo Editing Software", "Shareware and Freeware", "Video Software", "Web Conferencing", "Antivirus Software", "Browsers", "Computer Animation", "Databases", "Desktop Publishing", "Digital Audio", "Graphics Software", "Operating Systems", "Data Storage and Warehousing", "Desktops", "Information and Network Security", "Cloud Computing", "Web Development", "Web Hosting", "Email", "Internet", "Internet of Things", "Social Networking", "Web Design and HTML", "Laptops", "Programming Languages", "Cameras and Camcorders", "Home Entertainment Systems", "Smartphones", "Tablets and E-readers", "Wearable Technology", "Robotics", "Virtual Reality", "Television", "Animation TV", "Soap Opera TV", "Special Interest TV", "Sports TV", "Children's TV", "Comedy TV", "Drama TV", "Factual TV", "Holiday TV", "Music TV", "Reality TV", "Science Fiction TV", "Travel", "Africa Travel", "Asia Travel", "Australia and Oceania Travel", "Europe Travel", "North America Travel", "Polar Travel", "South America Travel", "Travel Preparation and Advice", "Adventure Travel", "Family Travel", "Honeymoons and Getaways", "Hotels and Motels", "Rail Travel", "Road Trips", "Spas", "Air Travel", "Beach Travel", "Bed & Breakfasts", "Budget Travel", "Business Travel", "Camping", "Cruises", "Day Trips", "Video Gaming", "Console Games", "eSports", "Mobile Games", "PC Games", "Action Video Games", "Role-Playing Video Games", "Simulation Video Games", "Sports Video Games", "Strategy Video Games", "Action-Adventure Video Games", "Adventure Video Games", "Casual Games", "Educational Video Games", "Exercise and Fitness Video Games", "MMOs", "Music and Party Video Games", "Puzzle Video Games", "Sensitive Topics", "Adult & Explicit Sexual Content", "Arms & Ammunition", "Crime & Harmful acts to individuals and Society and Human Right Violations", "Death, Injury, or Military Conflict", "Online piracy", "Hate speech & acts of aggression", "Obscenity and Profanity", "Illegal Drugs/Tobacco/eCigarettes/ Vaping/Alcohol", "Spam or Harmful Content", "Terrorism", "Sensitive Social Issues", "Parked domain", "Unsupported language", "Not enough content"
+  ];
+
+  const searchInput = document.getElementById('search-input');
+  const searchResults = document.getElementById('search-results');
+  const resultsList = document.getElementById('results-list');
+  const selectedList = document.getElementById('selected-list');
+
+  document.addEventListener('click', (event) => {
+    if (!searchInput.contains(event.target) && !searchResults.contains(event.target)) {
+      searchResults.style.display = 'none';
+    }
+  });
+  // Display all categories when search input is clicked
+  searchInput.addEventListener('click', () => {
+    displayResults('');
+  });
+
+  // Function to filter categories based on user input
+  function filterCategories(query) {
+    const filteredCategories = categories.filter(category => category.toLowerCase().includes(query.toLowerCase()));
+    return filteredCategories;
+  }
+
+  // Function to display filtered categories
+  function displayResults(query) {
+    resultsList.innerHTML = '';
+    const filteredCategories = filterCategories(query);
+    filteredCategories.forEach(category => {
+      const listItem = document.createElement('li');
+      listItem.textContent = category;
+      listItem.addEventListener('click', () => {
+        searchInput.value = category;
+        searchResults.style.display = 'none';
+        addToSelected(category);
+      });
+      resultsList.appendChild(listItem);
+    });
+    if (filteredCategories.length > 0) {
+      searchResults.style.display = 'block';
+    } else {
+      searchResults.style.display = 'none';
+    }
+  }
+
+  // Function to add selected category to the list of selected categories
+  function addToSelected(category) {
+    const selectedListItem = document.createElement('li');
+    selectedListItem.textContent = category;
+    selectedList.appendChild(selectedListItem);
+  }
+
+  // Event listener for input changes
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim();
+    displayResults(query);
+  });
+
+  // '+' button
+
+  document.querySelector('.category-select-container').addEventListener('click', function(event) {
+    if (event.target.matches('.category-select-container::after')) {
+      addCategoryToList();
+    }
+  });
+
+  function sendEmail(inputURL) {
+    fetch('/sendAlert2', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(inputURL),
+    })
+            .then(response => response.text())
+            .then(data => {
+              console.log(data); // Log the response from the server
+            })
+            .catch(error => {
+              console.error('Error:', error);
+            });
+  }
+
+  // Function to add category to the list
+  function addCategoryToList() {
+    const selectedCategory = document.getElementById('categorySelect').value;
+    if (selectedCategory && !selectedList.innerText.includes(selectedCategory)) {
+      const selectedListItem = document.createElement('li');
+      selectedListItem.textContent = selectedCategory;
+      selectedList.appendChild(selectedListItem);
+
+      // Add cross (x) button to remove the category
+      const removeButton = document.createElement('span');
+      removeButton.innerHTML = '&#10006;';
+      removeButton.classList.add('remove-category');
+      removeButton.addEventListener('click', () => {
+        selectedListItem.remove();
+      });
+      selectedListItem.appendChild(removeButton);
+    }
+  }
+  document.querySelector('.add-button').addEventListener('click', addCategoryToList);
+
+  function categorizeURL() {
+    var url = document.getElementById("url").value;
+    var confidence = document.getElementById("confidence").value;
+    var blockedCategories = Array.from(document.getElementById("selected-list").querySelectorAll('li')).map(item => item.textContent.trim().toLowerCase()); // Convert to lowercase for case-insensitive comparison
+
+    // Validate confidence level
+    if (confidence === "" || isNaN(confidence) || confidence < 0 || confidence > 100) {
+      alert("Please enter a valid confidence level between 0 and 100.");
+      return;
+    }
+
+    fetch('/categorize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url: url }),
+    })
+            .then(response => response.json())
+            .then(data => {
+              // Convert data to array of objects for sorting
+              var categoriesArray = [];
+              for (var category in data) {
+                var categoryConfidence = parseFloat((data[category] * 100).toFixed(2)); // Convert confidence to percentage
+                if (categoryConfidence >= confidence) { // Check if confidence is above threshold
+                  categoriesArray.push({ category: category, confidence: categoryConfidence });
+                }
+              }
+
+              // Sort categories by confidence in descending order
+              categoriesArray.sort((a, b) => b.confidence - a.confidence);
+
+              // Generate HTML for table
+              var resultHTML = '<table>';
+              resultHTML += '<tr><th>Category</th><th>Confidence (%)</th></tr>';
+              if (categoriesArray.length > 0) {
+                categoriesArray.forEach(item => {
+                  resultHTML += '<tr><td>' + item.category + '</td><td>' + item.confidence + '</td></tr>';
+                });
+
+                // Check if any categories should be blocked
+                var shouldBlock = categoriesArray.some(item => blockedCategories.includes(item.category.toLowerCase()));
+
+                // Generate HTML for block or pass message
+                if (shouldBlock) {
+                  resultHTML += '<div class="pass-block-container block">';
+                  resultHTML += '<p class="pass-block-text">This URL should be blocked.</p>';
+                  resultHTML += '<div class="block-reasons">';
+                  resultHTML += '<h3>Reasons to Block the given URL:</h3>';
+                  resultHTML += '<ul>';
+                  categoriesArray.filter(item => blockedCategories.includes(item.category.toLowerCase())).forEach(reason => {
+                    resultHTML += '<li>' + reason.category + '</li>';
+                  });
+                  resultHTML += '</ul>';
+                  resultHTML += '</div>';
+                  resultHTML += '</div>';
+                } else {
+                  resultHTML += '<div class="pass-block-container pass">';
+                  resultHTML += '<p class="pass-block-text">This URL can be passed through.</p>';
+                  resultHTML += '</div>';
+                }
+              } else {
+                // Call sendEmail function since there are no categories associated with the URL
+                sendEmail({ inputURL: url });
+
+                // Display message indicating no categories found
+                resultHTML += '<tr><td colspan="2">No categories found for the URL and alert mail is sent to the admin</td></tr>';
+              }
+
+              resultHTML += '</table>';
+
+              document.getElementById("result").innerHTML = resultHTML;
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              document.getElementById("result").innerHTML = "<p>Error retrieving categorization data.</p>";
+            });
+  }
+
+</script>
+
+</body>
+</html>

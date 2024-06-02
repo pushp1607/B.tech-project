@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top N Actions Pie Chart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #pieChart {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Top N Actions Pie Chart</h1>
+    <label for="jsonFilePath">JSON File Path:</label>
+    <input type="text" id="jsonFilePath" placeholder="Enter JSON file path">
+
+    <label for="topN">Top N:</label>
+    <input type="number" id="topN" placeholder="Enter N" value="5">
+
+    <button onclick="generatePieChart()">Generate Pie Chart</button>
+
+    <div id="pieChartContainer">
+        <canvas id="pieChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+<script>
+    function generatePieChart() {
+        const jsonFilePath = document.getElementById('jsonFilePath').value;
+        const topN = document.getElementById('topN').value;
+
+        // Fetch data from the server
+        fetch(`/top-actions?jsonFilePath=${encodeURIComponent(jsonFilePath)}&topN=${encodeURIComponent(topN)}`)
+            .then(response => response.json())
+            .then(data => {
+                const xValues = data.xValues;
+                const yValues = data.yValues;
+
+                // Get the canvas context
+                const pieChartCanvas = document.getElementById('pieChart');
+                const pieChartContext = pieChartCanvas.getContext('2d');
+
+                // Calculate the total sum of values
+                const total = yValues.reduce((acc, value) => acc + value, 0);
+
+                // Calculate percentages
+                const percentages = yValues.map(value => ((value / total) * 100).toFixed(2) + '%');
+
+                // Generate the pie chart
+                new Chart(pieChartContext, {
+                    type: "pie",
+                    data: {
+                        labels: xValues.map((label, index) => `${label} (${percentages[index]})`),
+                        datasets: [{
+                            backgroundColor: getRandomColors(xValues.length),
+                            data: yValues
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        title: {
+                            display: true,
+                            text: `Top ${topN} Actions`
+                        },
+                        legend: {
+                            display: true,
+                            position: "right"
+                        }
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function getRandomColors(count) {
+        const colors = ['#4caf50', '#2196f3', '#f44336', '#ff9800', '#9c27b0', '#795548', '#607d8b'];
+        const randomColors = [];
+        for (let i = 0; i < count; i++) {
+            randomColors.push(colors[Math.floor(Math.random() * colors.length)]);
+        }
+        return randomColors;
+    }
+</script>
+</body>
+</html>
