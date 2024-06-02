@@ -13,7 +13,7 @@ public class RawDBDemoGeoIPLocationService {
     private final DatabaseReader dbReader;
 
     public RawDBDemoGeoIPLocationService() throws IOException {
-        File database = new File("C:\\Users\\91628\\Downloads\\GeoLite2-City.mmdb");
+        File database = new File("GeoLite2-City.mmdb");
         dbReader = new DatabaseReader.Builder(database).build();
     }
 
