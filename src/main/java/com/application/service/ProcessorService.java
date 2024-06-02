@@ -20,7 +20,6 @@ public class ProcessorService {
     public String processPingFile(String logFilePath) {
         try {
             System.out.println(logFilePath);
-            //String logFilePath = "C:\\Users\\91628\\Downloads\\ping_21082023 (1)";  // Replace with your actual log file path
             BufferedReader br = new BufferedReader(new FileReader(logFilePath));
 
             JSONArray jsonArray = new JSONArray(); // Create an array to store JSON objects
