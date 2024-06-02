@@ -16,14 +16,14 @@ public class GeoIPLocationSetService {
     private final DatabaseReader dbReader;
 
     public GeoIPLocationSetService() throws IOException {
-        File database = new File("C:\\Users\\91628\\Downloads\\GeoLite2-City.mmdb");
+        File database = new File("GeoLite2-City.mmdb");
         dbReader = new DatabaseReader.Builder(database).build();
     }
 
     public List<GeoIP> getGeoLocationsFromJsonFile(String jsonFilePath) throws IOException, GeoIp2Exception {
         List<GeoIP> geoIPList = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(new File("C:\\Users\\91628\\Desktop\\Project\\final year cse project\\backend-project-main\\urlOutput.json"));
+        JsonNode rootNode = objectMapper.readTree(new File("urlOutput.json"));
 
         for (JsonNode node : rootNode) {
             String dstIP = node.get("dstip").asText();
