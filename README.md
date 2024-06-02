@@ -113,18 +113,19 @@ The system is composed of multiple layers and components:
 
 ### Screenshots
 1. **Java Package Structure**:
+   
    ![Dashboard](src/main/resources/javaPackageStructure.png)
    
-2. **Network Analysis Graphs**:
+3. **Network Analysis Graphs**:
    ![Network Analysis Graphs](src/main/resources/graphServiceFlowChart.png)
    
-3. **URL Categorization**:
+4. **URL Categorization**:
    ![Ping Processor](src/main/resources/urlCategorization.png)
 
-4. **Email Alerts**:
-   ![Email Alerts](src/main/resources/alerConfig.png)
+5. **Email Alerts**:
+   ![Email Alerts](src/main/resources/alertConfig.png)
    
-5. **IP Geolocation**:
+6. **IP Geolocation**:
    ![Ping Processor](src/main/resources/ipGeolocation.png)   
 
 ## Future Enhancements
