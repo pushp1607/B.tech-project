@@ -15,7 +15,7 @@ public class ServerAnalysis {
     public Set<String> UniquePingDestinations(String jsonFilePath) {
 
             // Provide the path to your JSON file
-            jsonFilePath = "C:\\Users\\91628\\Desktop\\Project\\final year cse project\\backend-project-main\\output.json";
+            jsonFilePath = "output.json";
         // Create a set to store unique ping destinations
         Set<String> uniqueDestinations = new HashSet<>();
             try {
@@ -67,7 +67,7 @@ public class ServerAnalysis {
     }
 
     public List<RTTAverageInfo> getcompleteRTTAveragesForDestination(String jsonFilePath, String destinationToSearch) {
-        jsonFilePath = "C:\\Users\\91628\\Desktop\\Project\\final year cse project\\backend-project-main\\output.json";
+        jsonFilePath = "output.json";
 
         List<RTTAverageInfo> rttAverages = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
@@ -124,7 +124,7 @@ public class ServerAnalysis {
         return failPercentage;
     }
     public List<Double> findRTTAveragesForDestination(String jsonFilePath, String destinationToSearch) {
-        jsonFilePath = "C:\\Users\\91628\\Desktop\\Project\\final year cse project\\backend-project-main\\output.json";
+        jsonFilePath = "output.json";
 
         List<Double> rttAverages = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
