@@ -15,7 +15,7 @@ import java.util.List;
 public class JsonFieldExtractorService {
 
     // Provide the path to your JSON file
-    private final String jsonFilePath = "C:\\Users\\91628\\Desktop\\Project\\final year cse project\\backend-project-main\\JitterLogs.json";
+    private final String jsonFilePath = "JitterLogs.json";
 
     public List<JsonEntryDTO> getJsonEntriesByAction(String targetAction) {
         List<JsonEntryDTO> jsonEntries = new ArrayList<>();
