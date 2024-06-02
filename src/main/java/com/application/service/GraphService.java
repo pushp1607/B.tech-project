@@ -97,7 +97,6 @@ public class GraphService {
         List<String> xValues = new ArrayList<>();
         List<Double> yValues = new ArrayList<>();
         System.out.println(jsonFilePath);
-       // jsonFilePath = "C:\\Users\\91628\\Desktop\\Project\\final year cse project\\backend-project-main\\JitterLogs.json";
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             File jsonFile = new File(jsonFilePath);
