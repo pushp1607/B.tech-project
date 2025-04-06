@@ -11,7 +11,7 @@ public class AlertService4 {
         ServerAnalysis serverAnalysis = new ServerAnalysis();
         Set<String> uniqueDestinations = serverAnalysis.UniquePingDestinations(filepath);
         StringBuilder emailBody = new StringBuilder();
-
+        // 2 new changes made?
         emailBody.append("<p style='margin-top: 20px; font-family: Arial, sans-serif; font-size: 16px;'>");
         emailBody.append(" Our network monitoring systems have detected that certain destinations are currently experiencing higher than usual round-trip times. This may indicate potential network issues that require attention. \n" +
                 "    Higher round-trip times can result in degraded network performance, leading to delays in data transmission and service disruptions. \n" +
